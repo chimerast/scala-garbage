@@ -8,11 +8,11 @@ import org.kartachi.scala.garbage.Profiler._
 
 object Profile {
   def main(args: Array[String]): Unit = {
-    JavaCollectionProfile.run
-    ByteBufferProfile.run
-    AnyValMutableCollectionProfile.run
-    AnyRefMutableCollectionProfile.run
-    AnyRefImmutableCollectionProfile.run
+    new ByteBufferProfile().run
+    new AnyValMutableCollectionProfile().run
+    new JavaCollectionProfile().run
+    new AnyRefMutableCollectionProfile().run
+    new AnyRefImmutableCollectionProfile().run
     Profiler.output
   }
 }
@@ -61,7 +61,7 @@ object Profiler {
   }
 }
 
-object JavaCollectionProfile {
+class JavaCollectionProfile {
   import scala.collection.JavaConversions._
 
   val array = Array.fill(repeat)("foo")
@@ -107,7 +107,7 @@ object JavaCollectionProfile {
   }
 }
 
-object ByteBufferProfile {
+class ByteBufferProfile {
   import scala.collection.JavaConversions._
 
   val nondirect = ByteBuffer.allocate(repeat * 4).asIntBuffer
@@ -142,7 +142,7 @@ object ByteBufferProfile {
   }
 }
 
-object AnyRefImmutableCollectionProfile {
+class AnyRefImmutableCollectionProfile {
   val array = Array.fill(repeat)("foo")
   var list = immutable.List[String]()
   var vector = immutable.IndexedSeq[String]()
@@ -186,7 +186,7 @@ object AnyRefImmutableCollectionProfile {
   }
 }
 
-object AnyRefMutableCollectionProfile {
+class AnyRefMutableCollectionProfile {
   val array = Array.fill(repeat)("foo")
   val arraybuffer = new mutable.ArrayBuffer[String]
   val listbuffer = new mutable.ListBuffer[String]
@@ -247,7 +247,7 @@ object AnyRefMutableCollectionProfile {
   }
 }
 
-object AnyValMutableCollectionProfile {
+class AnyValMutableCollectionProfile {
   val array = Array.fill(repeat)(0)
   val arraybuffer = new mutable.ArrayBuffer[Int]
   val listbuffer = new mutable.ListBuffer[Int]
