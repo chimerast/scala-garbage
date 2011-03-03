@@ -2,11 +2,14 @@ package org.kartachi.scala.garbage
 
 import scala.collection._
 
+import java.nio._
+
 import org.kartachi.scala.garbage.Profiler._
 
 object Profile {
   def main(args: Array[String]): Unit = {
     JavaCollectionProfile.run
+    ByteBufferProfile.run
     AnyValMutableCollectionProfile.run
     AnyRefMutableCollectionProfile.run
     AnyRefImmutableCollectionProfile.run
@@ -16,7 +19,7 @@ object Profile {
 
 object Profiler {
   val repeat = 10000
-  val trials = 100
+  val trials = 20
   val truncate = trials / 5
 
   val results = new mutable.ListMap[String, mutable.HashMap[String, Long]]()
@@ -78,28 +81,63 @@ object JavaCollectionProfile {
 
   def profileApply(): Unit = {
     profile("java.util.ArrayList[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = arraylist.get(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = arraylist.get(i)
     }
     profile("java.util.LinkedList[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = linkedlist.get(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = linkedlist.get(i)
     }
   }
 
   def profileUpdate(): Unit = {
     profile("java.util.ArrayList[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) arraylist.set(i, field)
+      var i = repeat; while ({i -= 1; i >= 0}) arraylist.set(i, field)
     }
     profile("java.util.LinkedList[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) linkedlist.set(i, field)
+      var i = repeat; while ({i -= 1; i >= 0}) linkedlist.set(i, field)
     }
   }
 
   def profileAppend(): Unit = {
     profile("java.util.ArrayList[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) arraylist.add(field)
+      var i = repeat; while ({i -= 1; i >= 0}) arraylist.add(field)
     }
     profile("java.util.LinkedList[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) linkedlist.add(field)
+      var i = repeat; while ({i -= 1; i >= 0}) linkedlist.add(field)
+    }
+  }
+}
+
+object ByteBufferProfile {
+  import scala.collection.JavaConversions._
+
+  val nondirect = ByteBuffer.allocate(repeat * 4).asIntBuffer
+  val direct = ByteBuffer.allocateDirect(repeat * 4).asIntBuffer
+
+  var field = 1
+
+  def run(): Unit = {
+    nondirect.limit(nondirect.capacity)
+    direct.limit(direct.capacity)
+
+    profileApply
+    profileUpdate
+  }
+
+  def profileApply(): Unit = {
+    profile("java.nio.IntByffer.apply") {
+      var i = repeat; while ({i -= 1; i >= 0}) field = nondirect.get(i)
+    }
+    profile("java.nio.DirectIntByffer.apply") {
+      var i = repeat; while ({i -= 1; i >= 0}) field = direct.get(i)
+    }
+  }
+
+  def profileUpdate(): Unit = {
+    profile("java.nio.IntByffer.update") {
+      var i = repeat; while ({i -= 1; i >= 0}) nondirect.put(i, field)
+    }
+    profile("java.nio.DirectIntByffer.update") {
+      var i = repeat; while ({i -= 1; i >= 0}) direct.put(i, field)
     }
   }
 }
@@ -122,28 +160,28 @@ object AnyRefImmutableCollectionProfile {
 
   def profileApply(): Unit = {
     profile("immutable.List[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = list(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = list(i)
     }
     profile("immutable.Vector[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = vector(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = vector(i)
     }
   }
 
   def profileUpdate(): Unit = {
     profile("immutable.List[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) list = list.updated(i, field)
+      var i = repeat; while ({i -= 1; i >= 0}) list = list.updated(i, field)
     }
     profile("immutable.Vector[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) vector = vector.updated(i, field)
+      var i = repeat; while ({i -= 1; i >= 0}) vector = vector.updated(i, field)
     }
   }
 
   def profileAppend(): Unit = {
     profile("immutable.List[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) list :+= field
+      var i = repeat; while ({i -= 1; i >= 0}) list :+= field
     }
     profile("immutable.Vector[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) vector :+= field
+      var i = repeat; while ({i -= 1; i >= 0}) vector :+= field
     }
   }
 }
@@ -168,46 +206,43 @@ object AnyRefMutableCollectionProfile {
 
   def profileApply(): Unit = {
     profile("Array[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = array(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = array(i)
     }
     profile("mutable.ArrayBuffer[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = arraybuffer(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = arraybuffer(i)
     }
     profile("mutable.ListBuffer[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = listbuffer(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = listbuffer(i)
     }
     profile("mutable.Queue[AnyRef].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = queue(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = queue(i)
     }
   }
 
   def profileUpdate(): Unit = {
     profile("Array[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) array(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) array(i) = field
     }
     profile("mutable.ArrayBuffer[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) arraybuffer(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) arraybuffer(i) = field
     }
     profile("mutable.ListBuffer[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) listbuffer(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) listbuffer(i) = field
     }
     profile("mutable.Queue[AnyRef].update") {
-      var i = repeat; while ({i -= 1; i > 0}) queue(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) queue(i) = field
     }
   }
 
   def profileAppend(): Unit = {
-    profile("Array[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) array(i) += field
-    }
     profile("mutable.ArrayBuffer[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) arraybuffer(i) += field
+      var i = repeat; while ({i -= 1; i >= 0}) arraybuffer += field
     }
     profile("mutable.ListBuffer[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) listbuffer(i) += field
+      var i = repeat; while ({i -= 1; i >= 0}) listbuffer += field
     }
     profile("mutable.Queue[AnyRef].append") {
-      var i = repeat; while ({i -= 1; i > 0}) queue(i) += field
+      var i = repeat; while ({i -= 1; i >= 0}) queue += field
     }
   }
 }
@@ -232,46 +267,43 @@ object AnyValMutableCollectionProfile {
 
   def profileApply(): Unit = {
     profile("Array[AnyVal].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = array(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = array(i)
     }
     profile("mutable.ArrayBuffer[AnyVal].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = arraybuffer(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = arraybuffer(i)
     }
     profile("mutable.ListBuffer[AnyVal].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = listbuffer(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = listbuffer(i)
     }
     profile("mutable.Queue[AnyVal].apply") {
-      var i = repeat; while ({i -= 1; i > 0}) field = queue(i)
+      var i = repeat; while ({i -= 1; i >= 0}) field = queue(i)
     }
   }
 
   def profileUpdate(): Unit = {
     profile("Array[AnyVal].update") {
-      var i = repeat; while ({i -= 1; i > 0}) array(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) array(i) = field
     }
     profile("mutable.ArrayBuffer[AnyVal].update") {
-      var i = repeat; while ({i -= 1; i > 0}) arraybuffer(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) arraybuffer(i) = field
     }
     profile("mutable.ListBuffer[AnyVal].update") {
-      var i = repeat; while ({i -= 1; i > 0}) listbuffer(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) listbuffer(i) = field
     }
     profile("mutable.Queue[AnyVal].update") {
-      var i = repeat; while ({i -= 1; i > 0}) queue(i) = field
+      var i = repeat; while ({i -= 1; i >= 0}) queue(i) = field
     }
   }
 
   def profileAppend(): Unit = {
-    profile("Array[AnyVal].append") {
-      var i = repeat; while ({i -= 1; i > 0}) array(i) += field
-    }
     profile("mutable.ArrayBuffer[AnyVal].append") {
-      var i = repeat; while ({i -= 1; i > 0}) arraybuffer(i) += field
+      var i = repeat; while ({i -= 1; i >= 0}) arraybuffer += field
     }
     profile("mutable.ListBuffer[AnyVal].append") {
-      var i = repeat; while ({i -= 1; i > 0}) listbuffer(i) += field
+      var i = repeat; while ({i -= 1; i >= 0}) listbuffer += field
     }
     profile("mutable.Queue[AnyVal].append") {
-      var i = repeat; while ({i -= 1; i > 0}) queue(i) += field
+      var i = repeat; while ({i -= 1; i >= 0}) queue += field
     }
   }
 }
