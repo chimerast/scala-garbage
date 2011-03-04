@@ -50,7 +50,7 @@ object Profiler {
   }
 
   def output(): Unit = {
-    val methods = List(".apply", ".update", ".foreach", ".prepend",  ".append")
+    val methods = List(".apply", ".update", ".foreach", ".prepend",  ".append", ".insert")
     print("|*micro sec|")
     methods.foreach(m => printf("*%s|", m))
     println
@@ -79,19 +79,19 @@ object ByteBufferProfile {
   }
 
   def profileApply(): Unit = {
-    profile("java.nio.IntByffer.apply") {
+    profile("java.nio.IntBuffer.apply") {
       var i = -1; while ({i += 1; i < repeat}) field = nondirect.get(i)
     }
-    profile("java.nio.DirectIntByffer.apply") {
+    profile("java.nio.DirectIntBuffer.apply") {
       var i = -1; while ({i += 1; i < repeat}) field = direct.get(i)
     }
   }
 
   def profileUpdate(): Unit = {
-    profile("java.nio.IntByffer.update") {
+    profile("java.nio.IntBuffer.update") {
       var i = -1; while ({i += 1; i < repeat}) nondirect.put(i, field)
     }
-    profile("java.nio.DirectIntByffer.update") {
+    profile("java.nio.DirectIntBuffer.update") {
       var i = -1; while ({i += 1; i < repeat}) direct.put(i, field)
     }
   }
