@@ -24,11 +24,12 @@ object Profiler {
 
   val results = new mutable.ListMap[String, mutable.HashMap[String, Long]]()
 
-  def profile(title: String)(block: => Unit): Unit = {
+  def profile(title: String, init: => Unit = {})(block: => Unit): Unit = {
     var result = List[Long]()
 
     var i = trials
     while ({i -= 1; i >= 0}) {
+      init
       val start = System.nanoTime
       block
       val end = System.nanoTime
@@ -163,44 +164,50 @@ object AnyValMutableCollectionProfile {
   }
 
   def profilePrepend(): Unit = {
-    val arraybuffer = new mutable.ArrayBuffer[Int]
-    profile("mutable.ArrayBuffer[AnyVal].prepend") {
+    var arraybuffer: mutable.ArrayBuffer[Int] = null
+    profile("mutable.ArrayBuffer[AnyVal].prepend",
+            { arraybuffer = new mutable.ArrayBuffer[Int] }) {
       var i = -1; while ({i += 1; i < repeat}) field +=: arraybuffer
     }
-    val listbuffer = new mutable.ListBuffer[Int]
-    profile("mutable.ListBuffer[AnyVal].prepend") {
+    var listbuffer: mutable.ListBuffer[Int] = null
+    profile("mutable.ListBuffer[AnyVal].prepend",
+            { listbuffer = new mutable.ListBuffer[Int] }) {
       var i = -1; while ({i += 1; i < repeat}) field +=: listbuffer
     }
-    val queue = new mutable.Queue[Int]
-    profile("mutable.Queue[AnyVal].prepend") {
+    var queue: mutable.Queue[Int] = null
+    profile("mutable.Queue[AnyVal].prepend",{
+      queue = new mutable.Queue[Int] }) {
       var i = -1; while ({i += 1; i < repeat}) field +=: queue
     }
   }
 
   def profileAppend(): Unit = {
-    val arraybuffer = new mutable.ArrayBuffer[Int]
-    profile("mutable.ArrayBuffer[AnyVal].append") {
+    var arraybuffer: mutable.ArrayBuffer[Int] = null
+    profile("mutable.ArrayBuffer[AnyVal].append",
+            { arraybuffer = new mutable.ArrayBuffer[Int] }) {
       var i = -1; while ({i += 1; i < repeat}) arraybuffer += field
     }
-    val listbuffer = new mutable.ListBuffer[Int]
-    profile("mutable.ListBuffer[AnyVal].append") {
+    var listbuffer: mutable.ListBuffer[Int] = null
+    profile("mutable.ListBuffer[AnyVal].append",
+            { listbuffer = new mutable.ListBuffer[Int] }) {
       var i = -1; while ({i += 1; i < repeat}) listbuffer += field
     }
-    val queue = new mutable.Queue[Int]
-    profile("mutable.Queue[AnyVal].append") {
+    var queue: mutable.Queue[Int] = null
+    profile("mutable.Queue[AnyVal].append",
+            { queue = new mutable.Queue[Int] }) {
       var i = -1; while ({i += 1; i < repeat}) queue += field
     }
   }
 
   def profileInsert(): Unit = {
-    val arraybuffer = new mutable.ArrayBuffer[Int]
-    arraybuffer ++= array
-    profile("mutable.ArrayBuffer[AnyVal].insert") {
+    var arraybuffer: mutable.ArrayBuffer[Int] = null
+    profile("mutable.ArrayBuffer[AnyVal].insert",
+            { arraybuffer = new mutable.ArrayBuffer[Int]; arraybuffer ++= array }) {
       var i = -1; while ({i += 1; i < repeat}) arraybuffer.insert(repeat-i, field)
     }
-    val listbuffer = new mutable.ListBuffer[Int]
-    listbuffer ++= array
-    profile("mutable.ListBuffer[AnyVal].insert") {
+    var listbuffer: mutable.ListBuffer[Int] = null
+    profile("mutable.ListBuffer[AnyVal].insert",
+            { listbuffer = new mutable.ListBuffer[Int]; listbuffer ++= array }) {
       var i = -1; while ({i += 1; i < repeat}) listbuffer.insert(repeat-i, field)
     }
   }
@@ -255,36 +262,40 @@ object JavaCollectionProfile {
   }
 
   def profilePrepend(): Unit = {
-    val arraylist = new java.util.ArrayList[String]
-    profile("java.util.ArrayList[AnyRef].prepend") {
+    var arraylist: java.util.ArrayList[String] = null
+    profile("java.util.ArrayList[AnyRef].prepend",
+            { arraylist = new java.util.ArrayList[String] }) {
       var i = -1; while ({i += 1; i < repeat}) arraylist.add(0, field)
     }
-    val linkedlist = new java.util.LinkedList[String]
-    profile("java.util.LinkedList[AnyRef].prepend") {
+    var linkedlist: java.util.LinkedList[String] = null
+    profile("java.util.LinkedList[AnyRef].prepend",
+            { linkedlist = new java.util.LinkedList[String] }) {
       var i = -1; while ({i += 1; i < repeat}) linkedlist.add(0, field)
     }
   }
 
   def profileAppend(): Unit = {
-    val arraylist = new java.util.ArrayList[String]
-    profile("java.util.ArrayList[AnyRef].append") {
+    var arraylist: java.util.ArrayList[String] = null
+    profile("java.util.ArrayList[AnyRef].append",
+            { arraylist = new java.util.ArrayList[String] }) {
       var i = -1; while ({i += 1; i < repeat}) arraylist.add(field)
     }
-    val linkedlist = new java.util.LinkedList[String]
-    profile("java.util.LinkedList[AnyRef].append") {
+    var linkedlist: java.util.LinkedList[String] = null
+    profile("java.util.LinkedList[AnyRef].append",
+            { linkedlist = new java.util.LinkedList[String] }) {
       var i = -1; while ({i += 1; i < repeat}) linkedlist.add(field)
     }
   }
 
   def profileInsert(): Unit = {
-    val arraylist = new java.util.ArrayList[String]
-    array.foreach(e => arraylist.add(e))
-    profile("java.util.ArrayList[AnyRef].insert") {
+    var arraylist: java.util.ArrayList[String] = null
+    profile("java.util.ArrayList[AnyRef].insert",
+            { arraylist = new java.util.ArrayList[String]; array.foreach(e => arraylist.add(e)) }) {
       var i = -1; while ({i += 1; i < repeat}) arraylist.add(repeat-i, field)
     }
-    val linkedlist = new java.util.LinkedList[String]
-    array.foreach(e => linkedlist.add(e))
-    profile("java.util.LinkedList[AnyRef].insert") {
+    var linkedlist: java.util.LinkedList[String] = null
+    profile("java.util.LinkedList[AnyRef].insert",
+            { linkedlist = new java.util.LinkedList[String]; array.foreach(e => linkedlist.add(e)) }) {
       val itr = linkedlist.listIterator(linkedlist.size)
       while (itr.hasPrevious) { itr.add(field); itr.previous; itr.previous; }
     }
@@ -358,44 +369,50 @@ object AnyRefMutableCollectionProfile {
   }
 
   def profilePrepend(): Unit = {
-    val arraybuffer = new mutable.ArrayBuffer[String]
-    profile("mutable.ArrayBuffer[AnyRef].prepend") {
+    var arraybuffer: mutable.ArrayBuffer[String] = null
+    profile("mutable.ArrayBuffer[AnyRef].prepend",
+            { arraybuffer = new mutable.ArrayBuffer[String] }) {
       var i = -1; while ({i += 1; i < repeat}) field +=: arraybuffer
     }
-    val listbuffer = new mutable.ListBuffer[String]
-    profile("mutable.ListBuffer[AnyRef].prepend") {
+    var listbuffer: mutable.ListBuffer[String] = null
+    profile("mutable.ListBuffer[AnyRef].prepend",
+            { listbuffer = new mutable.ListBuffer[String] }) {
       var i = -1; while ({i += 1; i < repeat}) field +=: listbuffer
     }
-    val queue = new mutable.Queue[String]
-    profile("mutable.Queue[AnyRef].prepend") {
+    var queue: mutable.Queue[String] = null
+    profile("mutable.Queue[AnyRef].prepend",
+            { queue = new mutable.Queue[String] }) {
       var i = -1; while ({i += 1; i < repeat}) field +=: queue
     }
   }
 
   def profileAppend(): Unit = {
-    val arraybuffer = new mutable.ArrayBuffer[String]
-    profile("mutable.ArrayBuffer[AnyRef].append") {
+    var arraybuffer: mutable.ArrayBuffer[String] = null
+    profile("mutable.ArrayBuffer[AnyRef].append",
+            { arraybuffer = new mutable.ArrayBuffer[String] }) {
       var i = -1; while ({i += 1; i < repeat}) arraybuffer += field
     }
-    val listbuffer = new mutable.ListBuffer[String]
-    profile("mutable.ListBuffer[AnyRef].append") {
+    var listbuffer: mutable.ListBuffer[String] = null
+    profile("mutable.ListBuffer[AnyRef].append",
+            { listbuffer = new mutable.ListBuffer[String] }) {
       var i = -1; while ({i += 1; i < repeat}) listbuffer += field
     }
-    val queue = new mutable.Queue[String]
-    profile("mutable.Queue[AnyRef].append") {
+    var queue: mutable.Queue[String] = null
+    profile("mutable.Queue[AnyRef].append",
+            { queue = new mutable.Queue[String] }) {
       var i = -1; while ({i += 1; i < repeat}) queue += field
     }
   }
 
   def profileInsert(): Unit = {
-    val arraybuffer = new mutable.ArrayBuffer[String]
-    arraybuffer ++= array
-    profile("mutable.ArrayBuffer[AnyRef].insert") {
+    var arraybuffer: mutable.ArrayBuffer[String] = null
+    profile("mutable.ArrayBuffer[AnyRef].insert",
+            { arraybuffer = new mutable.ArrayBuffer[String]; arraybuffer ++= array }) {
       var i = -1; while ({i += 1; i < repeat}) arraybuffer.insert(repeat-i, field)
     }
-    val listbuffer = new mutable.ListBuffer[String]
-    listbuffer ++= array
-    profile("mutable.ListBuffer[AnyRef].insert") {
+    var listbuffer: mutable.ListBuffer[String] = null
+    profile("mutable.ListBuffer[AnyRef].insert",
+            { listbuffer = new mutable.ListBuffer[String]; listbuffer ++= array }) {
       var i = -1; while ({i += 1; i < repeat}) listbuffer.insert(repeat-i, field)
     }
   }
@@ -447,23 +464,27 @@ object AnyRefImmutableCollectionProfile {
   }
 
   def profilePrepend(): Unit = {
-    var list = immutable.List[String]()
-    profile("immutable.List[AnyRef].prepend") {
+    var list: immutable.List[String] = null
+    profile("immutable.List[AnyRef].prepend",
+            { list = immutable.List[String]() }) {
       var i = -1; while ({i += 1; i < repeat}) list +:= field
     }
-    var vector = immutable.IndexedSeq[String]()
-    profile("immutable.Vector[AnyRef].prepend") {
+    var vector: immutable.IndexedSeq[String] = null
+    profile("immutable.Vector[AnyRef].prepend",
+            { vector = immutable.IndexedSeq[String]() }) {
       var i = -1; while ({i += 1; i < repeat}) vector +:= field
     }
   }
 
   def profileAppend(): Unit = {
-    var list = immutable.List[String]()
-    profile("immutable.List[AnyRef].append") {
+    var list: immutable.List[String] = null
+    profile("immutable.List[AnyRef].append",
+            { list = immutable.List[String]() }) {
       var i = -1; while ({i += 1; i < repeat}) list :+= field
     }
-    var vector = immutable.IndexedSeq[String]()
-    profile("immutable.Vector[AnyRef].append") {
+    var vector: immutable.IndexedSeq[String] = null
+    profile("immutable.Vector[AnyRef].append",
+            { vector = immutable.IndexedSeq[String]() }) {
       var i = -1; while ({i += 1; i < repeat}) vector :+= field
     }
   }
