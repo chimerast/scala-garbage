@@ -4,8 +4,6 @@ import org.kartachi.scala.garbage.Profiler._
 
 object ForeachProfile {
   def main(args: Array[String]): Unit = {
-    Profiler.trials = 1000
-
     profileSingle
     profileDouble
     profileTriple

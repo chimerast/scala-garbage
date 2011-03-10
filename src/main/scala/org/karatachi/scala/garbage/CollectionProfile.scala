@@ -8,7 +8,7 @@ import org.kartachi.scala.garbage.Profiler._
 import org.kartachi.scala.garbage.CollectionProfile._
 
 object CollectionProfile {
-  val repeat = 100
+  val repeat = 10000
 
   def main(args: Array[String]): Unit = {
     ByteBufferProfile.run

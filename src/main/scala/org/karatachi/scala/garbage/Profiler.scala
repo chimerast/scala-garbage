@@ -3,7 +3,7 @@ package org.kartachi.scala.garbage
 import scala.collection.mutable._
 
 object Profiler {
-  var trials = 1000
+  var trials = 100
 
   private val results = new LinkedHashMap[String, LinkedHashMap[String, Long]]()
 
@@ -20,7 +20,7 @@ object Profiler {
     }
 
     val truncate = trials / 5
-    val totalTime = result.sortWith(_ < _).view(truncate, trials - truncate).reduceLeft(_ + _)
+    val totalTime = result.sortWith(_ < _).view(truncate, trials - truncate).sum
     val average = totalTime / (trials - truncate*2) / 1000
 
     println("%s: %d micro sec".format(title, average))
