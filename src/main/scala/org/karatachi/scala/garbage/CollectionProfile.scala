@@ -16,7 +16,8 @@ object CollectionProfile {
     JavaCollectionProfile.run
     AnyRefMutableCollectionProfile.run
     AnyRefImmutableCollectionProfile.run
-    output()
+
+    Profiler.output()
   }
 }
 
